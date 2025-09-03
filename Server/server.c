@@ -12,16 +12,8 @@ int main(){
 
     int fd;
 
-    const char *fifo_path = "Users/leonardovaldeslizana/Proyects/ProcessChat";
+    const char *fifo_path = "Users/leonardovaldeslizana/Proyects/ProcessChat/Cliente1";
     mode_t fifo_permissions = 0666; // permisos para lectura y escritura
 
     mkfifo(fifo_path,fifo_permissions);
-
-
-
-    //SI RECIBO MENSAJE
-    if(1){
-        fd = open(fifo_path, O_WRONLY);
-    }
-
 }

@@ -15,14 +15,19 @@ int main(){
 
     int fd;
 
-    const char *fifo_path = "Users/leonardovaldeslizana/Proyects/ProcessChat";
+    const char *fifo_path = "Users/leonardovaldeslizana/Proyects/ProcessChat/Server";
     mode_t fifo_permissions = 0666;
 
 
     pid_t my_pid = getpid();
     printf("My PID: %d\n", my_pid);
 
+
     mkfifo(fifo_path,fifo_permissions);
 
+    fd = open(fifo_path,O_WRONLY);
+
+    write(fd, &my_pid, sizeof(my_pid));
+    
 
 }
