@@ -44,32 +44,31 @@ int main(){
 
     //Configurar manejador de señales para limpieza
     signal(SIGINT, cleanup_handler);
-    signal(SIGTERM, cleanup_handler);
 
     //Limpiar FIFO previo si existe
     unlink(ServerListenFIFO);
     
-    //Crear FIFO
+    //Crear FIFO server listen
     if(mkfifo(ServerListenFIFO, fifo_permissions) == -1) {
         if(errno != EEXIST) {
-            printf("Error creando FIFO: %s\n", strerror(errno));
+            printf("Error creando FIFO ServerListenFIFO: %s\n", strerror(errno));
             return 1;
         }
     }
     
-    printf("Servidor iniciado. Esperando clientes en %s\n", ServerListenFIFO);
-    printf("Presiona Ctrl+C para salir.\n");
+    printf("Servidor Listen FIFO iniciado. Esperando clientes en %s\n", ServerListenFIFO);
     
     fd = open(ServerListenFIFO, O_RDWR); //O_RDWR evita bloqueo cuando no hay escritores
 
     if(fd == -1){
-        printf("Error abriendo FIFO: %s\n", strerror(errno));
+        printf("Error abriendo ServerListenFIFO: %s\n", strerror(errno));
         unlink(ServerListenFIFO);
         return 1;
     }
 
     while(1){
         bytes_read = read(fd, &x, sizeof(x));
+
         if(x == -1){
             printf("Cliente cerro conexion");
         } else {
@@ -85,6 +84,11 @@ int main(){
         }
         
     }
+
+    while(1){
+
+    }
+
     
     cleanup_handler(0);
     return 0;
