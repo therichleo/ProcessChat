@@ -23,15 +23,17 @@ y si alguien quiere charlar con otro nodo, el nodo enviara el mensaje y dira a q
 
 const char *ServerListenFIFO = "/tmp/processchat_server_fifo";
 const char *ServerTalksFIFO = "tmp/processchat_server_talks";
-const char *ServerTalkToClient1 = "tmp/processchat_server_talk_to_client1";
+const char *ServerTalkToClient1 = "tmp/processchat_server_talk_to_client";
 int fd = -1;
 
-void cleanup_handler(int sig) {
+void cleanup_handler(int sig){
     printf("\nCerrando servidor...\n");
     if(fd != -1) {
         close(fd);
     }
     unlink(ServerListenFIFO);
+    unlink(ServerTalksFIFO);
+    unlink(ServerTalkToClient1);
     exit(0);
 }
 
@@ -68,15 +70,20 @@ int main(){
 
     while(1){
         bytes_read = read(fd, &x, sizeof(x));
-        if(bytes_read > 0) {
+        if(x == -1){
+            printf("Cliente cerro conexion");
+        } else {
+            if(bytes_read > 0) {
             printf("Cliente conectado - PID: %d\n", x);
-        } else if(bytes_read == 0) {
-            //EOF, el escritor se desconectó
-            printf("Cliente desconectado\n");
-        } else if(bytes_read == -1 && errno != EAGAIN) {
-            printf("Error leyendo FIFO: %s\n", strerror(errno));
-            break;
+            } else if(bytes_read == 0) {
+                //EOF, el escritor se desconectó
+                printf("Cliente desconectado\n");
+            } else if(bytes_read == -1 && errno != EAGAIN) {
+                printf("Error leyendo FIFO: %s\n", strerror(errno));
+                break;
+            }
         }
+        
     }
     
     cleanup_handler(0);
