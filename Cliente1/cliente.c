@@ -22,6 +22,7 @@ int fd = -1;
 int fd2 = -1;
 mode_t fifo_permissions = 0666;
 
+
 //FUNCION PARA CTRL+C
 void cleanup_handler(int sig){
     printf("\nCerrando cliente...\n");
@@ -35,11 +36,29 @@ void cleanup_handler(int sig){
 
 int main(){
     //le aplica señal sigint por interrumpcion (control + c )
+    const char stringX = "A";
+
     signal(SIGINT, cleanup_handler);
+
+    //Estructura creada de mensaje
+    /*
+    IDEA: enviar id procces
+    */
+    struct Message{
+        int ProcessID;
+        char Palabra[100];
+    };
+   
+
+    ssize_t bytes_writed;
 
     pid_t my_pid = getpid();
     int x = my_pid;
     int z = -1;
+
+    char word[100];
+    struct Message mensaje_enviado = {my_pid,scanf("%c",&word)};
+
 
 
     printf("Cliente iniciando con PID: %d\n", x);
@@ -82,14 +101,24 @@ int main(){
 
     int opciones;
     //Definimos estructura de mensaje a enviar
+
     while(1){
         printf("Elije numero:\nOpcion 1: Chatear\nOpcion 2: Reportar\nOpcion 3: Desconectar\nOpcion: ");
         scanf("%d", &opciones);
         if(opciones == 1){
-            printf("\nPID disponibles para chatear:\n");
             ssize_t bytes_read = read(fd2, &z, sizeof(z));
+            bytes_writed = write(fd,&mensaje_enviado,sizeof(struct Message));
+            printf("SI QUIERES SALIR DEL CHAT PON (-1)");
+            //aqui se envia estructura de mensaje
+            const char chat_reader = read();
+            printf("IMPRIMIMOS VARIABLE QUE NOS DEVUELVE EL CENTRAL");
+            while(1){
+                if(word == -1){
+                    break;
+                }
+                bytes_writed = write(fd,&mensaje_enviado,sizeof(struct Message));
 
-
+            }
 
             
         }
