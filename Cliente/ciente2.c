@@ -1,11 +1,3 @@
-/*
-
-IDEA PRIMERO CONECTAR A PIPE
-LUEGO MANDAR MENSAJE A PIPE CON SU PID
-Y DAR UN MENU DE OPCIONES DE REPORTES O DE MENSAJE
-
-*/
-
 #include <unistd.h>
 #include <sys/types.h>
 #include <stdio.h>
@@ -15,121 +7,58 @@ Y DAR UN MENU DE OPCIONES DE REPORTES O DE MENSAJE
 #include <string.h>
 #include <stdlib.h>
 
-const char *ServerListenFIFO = "/tmp/processchat_server_fifo";
-const char *ServerTalksFIFO = "/tmp/processchat_server_talks";
-const char *ServerTalkToClient1 = "/tmp/processchat_server_talk_to_client";
-int fd = -1;
-int fd2 = -1;
-mode_t fifo_permissions = 0666;
+#define MSG_SIZE 256
+typedef struct {
+    int pid;
+    char mensaje[MSG_SIZE];
+} estructure;
 
+const char *ChatGeneralFIFO = "tmp/processchat_comunnity_chat"; //PIPE donde el server enviara mensajes generales
+const char *ClientTalkFIFO = "tmp/processchat_client_talk"; //PIPE donde clientes envian mensaje al server
+int fd;
+int fd2;
 
 //FUNCION PARA CTRL+C
 void cleanup_handler(int sig){
     printf("\nCerrando cliente...\n");
-    int x = -1;
     if (fd != -1) {
-        write(fd, &x, sizeof(x));
         close(fd);
+    }
+    if(fd2 != -1){
+        close(fd2);
     }
     exit(0);
 }
 
 int main(){
-    //le aplica señal sigint por interrumpcion (control + c )
-    const char stringX = "A";
 
-    signal(SIGINT, cleanup_handler);
+    signal(SIGINT, cleanup_handler); //interrupciones como control + c
 
-    //Estructura creada de mensaje
-    /*
-    IDEA: enviar id procces
-    */
-    struct Message{
-        int ProcessID;
-        char Palabra[100];
-    };
-   
+    pid_t mypid = getpid(); //conseguimos nuestra PID
+    printf("Hola mi PID es: %d",&mypid); 
 
-    ssize_t bytes_writed;
-
-    pid_t my_pid = getpid();
-    int x = my_pid;
-    int z = -1;
-
-    char word[100];
-    struct Message mensaje_enviado = {my_pid,scanf("%c",&word)};
-
-
-
-    printf("Cliente iniciando con PID: %d\n", x);
-    
-    //Intentar abrir el FIFO (el servidor debe estar ejecutándose)
-    fd = open(ServerListenFIFO, O_WRONLY);
-    if(fd == -1) {
-        printf("Error: No se puede conectar al servidor.\n");
-        printf("Asegúrate de que el servidor esté ejecutándose.\n");
-        return 1;
-    }
-
-    //Enviar PID al servidor
-    if(write(fd, &x, sizeof(x)) == -1) {
-        printf("Error enviando PID al servidor: %s\n", strerror(errno));
-        close(fd);
-        return 1;
+    fd = open(ChatGeneralFIFO, O_RDONLY); //Lee mensajes del servidor
+    if(fd == -1){
+        printf("Error abriendo PIPE ChatGeneralFIFO en Cliente de pid: %d", &mypid);
     }
     
-    printf("PID %d enviado al servidor exitosamente\n", x);
-
-    //limpiamos server talks
-    unlink(ServerTalksFIFO);
-
-    //creamos server talks
-    if(mkfifo(ServerTalksFIFO,fifo_permissions) == -1){
-        if(errno != EEXIST){
-            printf("Error creand FIFO ServerTalksFIFO: %s\n", strerror(errno));
-            return 1;
-        }
-    }
-    printf("\nServidor Server Talks FIFO iniciado.\n");
-
-    fd2 = open(ServerTalksFIFO, O_RDWR); 
+    fd2 = open(ClientTalkFIFO,O_WRONLY); //escribe mensajes hacia el servidor
     if(fd2 == -1){
-        printf("Error abriendo SeverTalksFIFO: %s\n", strerror(errno));
-        unlink(ServerTalksFIFO);
-        return 1;
+        printf("Error arbiendo PIPE ClientTalkFIFO en Cliente de pid: $d", &mypid);
     }
 
-    int opciones;
-    //Definimos estructura de mensaje a enviar
 
-    while(1){
-        printf("Elije numero:\nOpcion 1: Chatear\nOpcion 2: Reportar\nOpcion 3: Desconectar\nOpcion: ");
-        scanf("%d", &opciones);
-        if(opciones == 1){
-            ssize_t bytes_read = read(fd2, &z, sizeof(z));
-            bytes_writed = write(fd,&mensaje_enviado,sizeof(struct Message));
-            printf("SI QUIERES SALIR DEL CHAT PON (-1)");
-            //aqui se envia estructura de mensaje
-            //const char chat_reader = read();
-            printf("IMPRIMIMOS VARIABLE QUE NOS DEVUELVE EL CENTRAL");
-            while(1){
-                if(word == -1){
-                    break;
-                }
-                bytes_writed = write(fd,&mensaje_enviado,sizeof(struct Message));
+    estructure pkt;
+    ssize_t n;
+    char temp[1200];
 
-            }
-
-            
-        }
-
-    }
-    
+    while(1){}    
 
 
-    
- 
 
-    cleanup_handler(0);
-    return 0;
+
+
+
+
+
 }

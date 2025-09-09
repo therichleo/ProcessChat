@@ -12,7 +12,7 @@
 typedef struct {
     int pid;
     char mensaje[MSG_SIZE];
-} packet_t;
+} estructure;
 
 const char *ChatGeneralFIFO = "tmp/processchat_comunnity_chat"; //PIPE donde el server enviara mensajes generales
 const char *ClientTalkFIFO = "tmp/processchat_client_talk"; //PIPE donde clientes envian mensaje al server
@@ -97,7 +97,7 @@ int main(){
         --chats;
     }
     
-    packet_t pkt;
+    estructure pkt;
     ssize_t n;
     char temp[1200];
 
