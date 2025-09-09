@@ -23,10 +23,10 @@ int fd2;
 void cleanup_handler(int sig){
     printf("\nCerrando servidor...\n");
     if(fd != -1) {
-        close(fd);
+        close(fd); //Si no hubo error el cual cerrara la pipe, signfica que la pipe sigue, entonces la cierra
     }
     if(fd2 != -1){
-        close(fd2);
+        close(fd2); //Si no hubo error el cual cerrara la pipe, signfica que la pipe sigue, entonces la cierra
     }
     unlink(ChatGeneralFIFO);
     unlink(ClientTalkFIFO);
@@ -102,13 +102,13 @@ int main(){
     char temp[1200];
 
     while(1){
-        while ((n = read(fd, &pkt, sizeof(pkt))) > 0) { //Si lee algo entra
+        while ((n = read(fd2, &pkt, sizeof(pkt))) > 0) { //Si lee algo entra
         if (n != sizeof(pkt)) {
             continue;
         }
         printf("PID=%d, Mensaje=\"%s\"\n", pkt.pid, pkt.mensaje);
         snprintf(temp, sizeof(temp), "%d: %s", pkt.pid, pkt.mensaje);  //Pasa los datos PID y Mensaje a un char "PID: Mensaje"
-        write(fd2, temp, strlen(temp) + 1); //Se pone +1 ya que en una cadena de char en C es 'H' 'O' 'L' 'A' '\0'
+        write(fd, temp, strlen(temp) + 1); //Se pone +1 ya que en una cadena de char en C es 'H' 'O' 'L' 'A' '\0'
         }
     }
     
