@@ -110,7 +110,7 @@ int main(){
             bytes_writed = write(fd,&mensaje_enviado,sizeof(struct Message));
             printf("SI QUIERES SALIR DEL CHAT PON (-1)");
             //aqui se envia estructura de mensaje
-            const char chat_reader = read();
+            //const char chat_reader = read();
             printf("IMPRIMIMOS VARIABLE QUE NOS DEVUELVE EL CENTRAL");
             while(1){
                 if(word == -1){
