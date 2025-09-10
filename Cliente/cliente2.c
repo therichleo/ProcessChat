@@ -15,7 +15,10 @@ typedef struct {
 } estructure;
 
 const char *ClientTalkFIFO = "/tmp/processchat_client_talk"; //PIPE donde clientes envian mensaje al server
+const char *ReportsFIFO = "/tmp/processchat_reports";
 int fd2 = -1;
+int fd3 = -1;
+int contador = 0;
 
 //FUNCION PARA CTRL+C
 void cleanup_handler(int sig){
@@ -24,6 +27,15 @@ void cleanup_handler(int sig){
         close(fd2);
     }
     exit(0);
+}
+
+void usr1_handler(int sig){
+    contador++;
+    if(contador == 10){
+        close(fd3);
+        close(fd2);
+        exit(0);
+    }
 }
 
 int main(){
@@ -37,7 +49,11 @@ int main(){
     if(fd2 == -1){
         printf("Error arbiendo PIPE ClientTalkFIFO en Cliente de pid: %d \n",(int)mypid);
     }
-    
+    fd3 = open(ReportsFIFO,O_WRONLY); //escribe mensajes hacia el reportador, enviara solo el PID a reportar y ya 
+    if(fd3 == -1){
+        printf("Error abriendo PIPE ReportsFIFO");
+    }
+
     estructure pkt;
 
     snprintf(pkt.mensaje, MSG_SIZE, "%d: se conectó exitosamente", (int)mypid); //función que arma un texto formateado (como printf) pero lo escribe dentro de un buffer (un char[])
@@ -50,6 +66,7 @@ int main(){
     ssize_t bytes_read;
     char msg[256];
 
+    int target_pid;
 
     while(1){
         printf("Escribe mensaje: ");
@@ -57,8 +74,11 @@ int main(){
         size_t L = strlen(pkt.mensaje);  //calcula longitud de la cadena leida
         if (L && pkt.mensaje[L-1] == '\n') pkt.mensaje[L-1] = '\0'; //limpia mensaje, quita el salto de linea por el 0
         if (strcmp(pkt.mensaje, "-1") == 0) { //compara con el -1
-            printf("Menu de opciones:.\n");
-            
+            printf("Menu de reportes: \n");
+            printf("Digita el PID a reportar: ");
+            scanf("%d",target_pid);
+            write(fd3,&target_pid,sizeof(target_pid));
+
         }
         pkt.pid = mypid;
         write(fd2,&pkt, sizeof(pkt));
