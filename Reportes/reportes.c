@@ -13,10 +13,11 @@ int fd3 = -1;
 
 //FUNCION PARA CTRL+C
 void cleanup_handler(int sig){
-    printf("\nCerrando cliente...\n");
+    printf("\nCerrando reportes...\n");
     if(fd3 != -1){
         close(fd3);
     }
+    unlink(ReportsFIFO);  // Limpia el FIFO al salir
     exit(0);
 }
 
@@ -27,11 +28,16 @@ int main(){
     mode_t fifo_permissios = 0666;
 
     if (mkfifo(ReportsFIFO, fifo_permissios) == -1) {
-        fprintf(stderr, "Error creando FIFO %s: %s\n", ReportsFIFO, strerror(errno));
-        return 1;
+        if (errno != EEXIST) {
+            fprintf(stderr, "Error creando FIFO %s: %s\n", ReportsFIFO, strerror(errno));
+            return 1;
+        }
+        printf("FIFO ya existe, continuando...\n");
+    } else {
+        printf("FIFO creada: %s\n", ReportsFIFO);
     }
 
-    fd3 = open(fd3, O_RDONLY);
+    fd3 = open(ReportsFIFO, O_RDONLY);
     if(fd3 == -1){
         printf("Error al abrir PIPE");
     }
@@ -41,12 +47,16 @@ int main(){
     int target_pìd;
 
     while(1){
-        n = read(fd3, target_pìd, sizeof(target_pìd));
+        n = read(fd3, &target_pìd, sizeof(target_pìd));
         if(n>1){
             if(n!=sizeof(target_pìd)){
                 continue;
             }
             printf("Reporte recibido hacia %d \n",target_pìd);
+            if (kill(target_pìd, SIGUSR1) == -1) {
+                perror("Error al enviar señal");
+                return 1;
+            }
         } else if(n == 0){
             printf("No hay reportes aun. Esperando nuevos...\n");
             close(fd3);

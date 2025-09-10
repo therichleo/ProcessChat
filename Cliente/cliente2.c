@@ -40,6 +40,8 @@ void usr1_handler(int sig){
 
 int main(){
 
+    signal(SIGUSR1, usr1_handler);
+
     signal(SIGINT, cleanup_handler); //interrupciones como control + c
 
     pid_t mypid = getpid(); //conseguimos nuestra PID
@@ -76,12 +78,12 @@ int main(){
         if (strcmp(pkt.mensaje, "-1") == 0) { //compara con el -1
             printf("Menu de reportes: \n");
             printf("Digita el PID a reportar: ");
-            scanf("%d",target_pid);
+            scanf("%d",&target_pid);
             write(fd3,&target_pid,sizeof(target_pid));
-
+        } else {
+            pkt.pid = mypid;
+            write(fd2,&pkt, sizeof(pkt));
+            printf("\n");
         }
-        pkt.pid = mypid;
-        write(fd2,&pkt, sizeof(pkt));
-        printf("\n");
     }    
 }
