@@ -46,7 +46,7 @@ int main(){
         cleanup_handler(0);
     }
 
-    printf("Puedes escribir mensajes en este terminal, si pones de mensaje (-1) iras directamente al menu de reportes");
+    printf("\nPuedes escribir mensajes en este terminal, si pones de mensaje (-1) iras directamente al menu de reportes: \n");
     ssize_t bytes_read;
     char msg[256];
 
@@ -62,7 +62,6 @@ int main(){
         }
         pkt.pid = mypid;
         write(fd2,&pkt, sizeof(pkt));
+        printf("\n");
     }    
-
-
 }
