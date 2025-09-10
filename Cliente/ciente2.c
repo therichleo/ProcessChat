@@ -1,12 +1,12 @@
-#include <unistd.h>
-#include <sys/types.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <string.h>
-#include <stdlib.h>
-#include <signal.h>
+#include <unistd.h> //funciones basicas como write open, etc
+#include <sys/types.h> //para varibales como ssize_t pid_t
+#include <stdio.h> //para prinft snprintf
+#include <fcntl.h> //constantes para abrir los PIPES (O_WRONLY etc)
+#include <sys/stat.h> //MKFIFOS para permisos 0666
+#include <errno.h> //para errores
+#include <string.h> //para manejar cadenas de memoria
+#include <stdlib.h> //exit cleanup_handler
+#include <signal.h> //señales como control c
 
 #define MSG_SIZE 256
 typedef struct {
@@ -37,10 +37,16 @@ int main(){
     if(fd2 == -1){
         printf("Error arbiendo PIPE ClientTalkFIFO en Cliente de pid: %d \n",(int)mypid);
     }
-
-
+    
     estructure pkt;
-    printf("Escribe mensaje:");
+
+    snprintf(pkt.mensaje, MSG_SIZE, "%d: se conectó exitosamente", (int)mypid); //función que arma un texto formateado (como printf) pero lo escribe dentro de un buffer (un char[])
+    if (write(fd2, &pkt, sizeof(pkt)) < 0) {
+        perror("write (mensaje inicial)");
+        cleanup_handler(0);
+    }
+
+    printf("Puedes escribir mensajes en este terminal, si pones de mensaje (-1) iras directamente al menu de reportes");
     ssize_t bytes_read;
     char msg[256];
 
