@@ -52,13 +52,13 @@ int main(){
 
 
     while(1){
-        
+        printf("Escribe mensaje: ");
         fgets(pkt.mensaje, MSG_SIZE, stdin); //lee de teclado y lo guarda en variable pkt.mensaje y el tamaño de bytes de msg_size
         size_t L = strlen(pkt.mensaje);  //calcula longitud de la cadena leida
         if (L && pkt.mensaje[L-1] == '\n') pkt.mensaje[L-1] = '\0'; //limpia mensaje, quita el salto de linea por el 0
         if (strcmp(pkt.mensaje, "-1") == 0) { //compara con el -1
-            printf("Cliente finalizado por el usuario.\n");
-            cleanup_handler(0);
+            printf("Menu de opciones:.\n");
+            
         }
         pkt.pid = mypid;
         write(fd2,&pkt, sizeof(pkt));
