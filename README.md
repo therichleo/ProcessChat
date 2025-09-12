@@ -59,6 +59,9 @@ flowchart TD
     R -->|SIGUSR1 (sanción)| C1
     R -->|SIGUSR1 (sanción)| C2
     R -->|SIGUSR1 (sanción)| C3
+
+```mermaid
+
 ---
 
 ## ⚙️ Ejecución
@@ -150,6 +153,7 @@ ProcessChat/
 Un sistema de chat sencillo pero completo, que muestra **cómo coordinar múltiples procesos concurrentes** en un entorno Unix.
 
 ```
+
 
 
 
