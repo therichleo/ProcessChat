@@ -38,29 +38,10 @@ Se usan **FIFOs** para interconectar procesos:
 
 - `processchat_client_talk` → los **clientes escriben** mensajes → el **servidor los lee**.  
 - `processchat_server_talk` → el **servidor responde** → los **clientes leen**.  
-- `processchat_reports` → los **clientes envían reportes** → el **módulo de reportes los procesa**.  
+- `processchat_reports` → los **clientes envían reportes** → el **módulo de reportes los procesa**.
 
 📊 **Flujo de información**:  
-
-```mermaid
-flowchart TD
-    subgraph CLIENTES[Clientes 👤]
-        C1[Cliente 1] -->|Mensaje| S[Servidor 🖥️]
-        C2[Cliente 2] -->|Mensaje| S
-        C3[Cliente N] -->|Mensaje| S
-        S -->|Confirmación OK| C1
-        S -->|Confirmación OK| C2
-        S -->|Confirmación OK| C3
-        C1 -.->|Reporte (PID)| R[Reportes 🛡️]
-        C2 -.->|Reporte (PID)| R
-        C3 -.->|Reporte (PID)| R
-    end
-
-    R -->|SIGUSR1 (sanción)| C1
-    R -->|SIGUSR1 (sanción)| C2
-    R -->|SIGUSR1 (sanción)| C3
-
-```mermaid
+Cliente ───► Servidor ───► Confirmación Cliente ───► Reportes ───► Señal SIGUSR1 ───► Cliente reportado
 
 ---
 
@@ -153,6 +134,7 @@ ProcessChat/
 Un sistema de chat sencillo pero completo, que muestra **cómo coordinar múltiples procesos concurrentes** en un entorno Unix.
 
 ```
+
 
 
 
