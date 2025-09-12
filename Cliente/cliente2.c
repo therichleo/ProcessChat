@@ -110,13 +110,13 @@ int main(){
                 if(t > 0){  //Proceso padre sigue en el mismo terminal y codigo
                     continue;
                 }
-                if(t == 0){ //Proceso hijo sigue en otro terminal (macOS Terminal.app)
+                if(t == 0){ //Proceso hijo sigue en otro termina
                     //Proceso hijo lanza otra terminal con este mismo programa
                     if (fd!=-1) close(fd);
                     if (fd2!=-1) close(fd2);
                     if (fd3!=-1) close(fd3);
                     
-                    // En macOS usamos osascript para abrir Terminal.app
+                    //usamos osascript para abrir Terminal.app
                     char current_dir[1024];
                     if (getcwd(current_dir, sizeof(current_dir)) == NULL) {
                         perror("getcwd");
