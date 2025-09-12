@@ -1,4 +1,3 @@
-```markdown
 # 📨 ProcessChat – Chat Multi-Proceso con FIFOs y Señales
 
 Este proyecto implementa un **chat multi-proceso** en **C** usando **Pipes con nombre (FIFOs)** y **señales** en sistemas tipo Unix (probado en macOS).  
@@ -143,3 +142,4 @@ Un sistema de chat sencillo pero completo, que muestra **cómo coordinar múltip
 
 ¿Quieres que también le agregue un **diagrama visual tipo mermaid** (que GitHub renderiza bonito) mostrando la relación entre **Servidor, Clientes y Reportes**?
 ```
+
