@@ -134,13 +134,3 @@ ProcessChat/
 * Integración con herramientas de macOS para replicar clientes.
 
 Un sistema de chat sencillo pero completo, que muestra **cómo coordinar múltiples procesos concurrentes** en un entorno Unix.
-
-```
-
-
-
-
-
-
-
-
