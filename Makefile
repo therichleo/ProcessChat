@@ -21,7 +21,7 @@ clean:
 	rm -f server2 cliente2 reportes_app
 
 cleanup:
-	rm -f /tmp/processchat_reports /tmp/processchat_client_talk
+	rm -f /tmp/processchat_reports /tmp/processchat_client_talk /tmp/processchat_server_talk
 
 fullclean: clean cleanup
 

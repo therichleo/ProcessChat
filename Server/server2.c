@@ -28,6 +28,7 @@ void cleanup_handler(int sig){
         close(fd);
     }
     unlink(ClientTalkFIFO);
+    unlink(ServerTalkFIFO);
     exit(0);
 }
 
@@ -35,6 +36,7 @@ int main(void){
     signal(SIGINT, cleanup_handler);
 
     unlink(ClientTalkFIFO); //limpia la PIPE
+    unlink(ServerTalkFIFO); //limpia la PIPE del servidor
 
     mode_t fifo_permissions = 0666; //permisos para lectura y escritura
     if (mkfifo(ClientTalkFIFO, fifo_permissions) == -1) {
@@ -42,6 +44,12 @@ int main(void){
         return 1;
     }
     printf("FIFO creada: %s\n", ClientTalkFIFO);
+
+    if (mkfifo(ServerTalkFIFO, fifo_permissions) == -1) {
+        fprintf(stderr, "Error creando FIFO %s: %s\n", ServerTalkFIFO, strerror(errno));
+        return 1;
+    }
+    printf("FIFO creada: %s\n", ServerTalkFIFO);
 
     fd = open(ServerTalkFIFO, O_WRONLY);
     if(fd == -1){
@@ -70,7 +78,7 @@ int main(void){
             }
             pkt.mensaje[MSG_SIZE - 1] = '\0';
             printf("PID=%d, Mensaje=\"%s\"\n", pkt.pid, pkt.mensaje);
-            write(fd, exito,sizeof(exito));
+            write(fd, &exito,sizeof(exito));
                 } else if (n == 0) { //si nadie escribe, la cierra y la reabre para nuevas personas entrando
             printf("No hay clientes escribiendo. Esperando nuevos...\n");
             close(fd2);

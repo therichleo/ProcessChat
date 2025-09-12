@@ -34,6 +34,7 @@ void cleanup_handler(int sig){
     if(fd3 != -1){
         close(fd3);
     }
+    exit(0);
 }
 
 void usr1_handler(int sig){
@@ -70,6 +71,8 @@ int main(){
 
     estructure pkt;
 
+    pkt.pid = mypid;
+
     snprintf(pkt.mensaje, MSG_SIZE, "%d: se conectó exitosamente", (int)mypid); //función que arma un texto formateado (como printf) pero lo escribe dentro de un buffer (un char[])
     if (write(fd2, &pkt, sizeof(pkt)) < 0) {
         perror("write (mensaje inicial)");
@@ -95,9 +98,11 @@ int main(){
             printf("Menu de opciones: \n"); //Despliega menu de opciones
             printf("1. Reportar\n2. Copiar\n Digite numero de operacion a elegir:"); 
             scanf("%d", &opciones);
+            int c; while ((c = getchar()) != '\n' && c != EOF) {}
             if(opciones == 1){
                 printf("Digite PID a reportar: "); //genera reporte a PID: target_pid
                 scanf("%d",&target_pid);
+                int c; while ((c = getchar()) != '\n' && c != EOF) {}
                 write(fd3,&target_pid,sizeof(target_pid));
             }
             else if(opciones == 2){
@@ -105,14 +110,34 @@ int main(){
                 if(t > 0){  //Proceso padre sigue en el mismo terminal y codigo
                     continue;
                 }
-                if(t == 0){ //Proceso hijo sigue en otro terminal (Buscar Xterm)
-
+                if(t == 0){ //Proceso hijo sigue en otro terminal (macOS Terminal.app)
+                    //Proceso hijo lanza otra terminal con este mismo programa
+                    if (fd!=-1) close(fd);
+                    if (fd2!=-1) close(fd2);
+                    if (fd3!=-1) close(fd3);
+                    
+                    // En macOS usamos osascript para abrir Terminal.app
+                    char current_dir[1024];
+                    if (getcwd(current_dir, sizeof(current_dir)) == NULL) {
+                        perror("getcwd");
+                        _exit(1);
+                    }
+                    
+                    char command[2048];
+                    snprintf(command, sizeof(command), 
+                        "osascript -e 'tell application \"Terminal\" to do script \"cd %s && ./cliente2\"'",
+                        current_dir);
+                    
+                    int result = system(command);
+                    if (result != 0) {
+                        fprintf(stderr, "Error ejecutando Terminal.app\n");
+                    }
+                    _exit(0);
                 }
             }
         } else {
-            pkt.pid = mypid;
             write(fd2,&pkt, sizeof(pkt));
-            n = read(fd,exito,sizeof(exito));
+            n = read(fd,&exito,sizeof(exito));
             if(n){
                 printf("Mensaje enviado exitosamente...\n");
             }
