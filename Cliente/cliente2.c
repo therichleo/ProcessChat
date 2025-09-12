@@ -15,7 +15,9 @@ typedef struct {
 } estructure;
 
 const char *ClientTalkFIFO = "/tmp/processchat_client_talk"; //PIPE donde clientes envian mensaje al server
+const char *ServerTalkFIFO = "/tmp/processchat_server_talk"; //PIPE donde server envia mensaje al cliente
 const char *ReportsFIFO = "/tmp/processchat_reports";
+int fd = -1;
 int fd2 = -1;
 int fd3 = -1;
 int contador = 0;
@@ -23,10 +25,15 @@ int contador = 0;
 //FUNCION PARA CTRL+C
 void cleanup_handler(int sig){
     printf("\nCerrando cliente...\n");
+    if(fd != -1){
+        close(fd);
+    }
     if(fd2 != -1){
         close(fd2);
     }
-    exit(0);
+    if(fd3 != -1){
+        close(fd3);
+    }
 }
 
 void usr1_handler(int sig){
@@ -46,6 +53,11 @@ int main(){
 
     pid_t mypid = getpid(); //conseguimos nuestra PID
     printf("Hola mi PID es: %d \n",(int)mypid); 
+
+    fd = open(ServerTalkFIFO, O_RDONLY);
+    if(fd == -1){
+        printf("Error abriendo PIPE ServerTalksFIFO");
+    }
     
     fd2 = open(ClientTalkFIFO,O_WRONLY); //escribe mensajes hacia el servidor
     if(fd2 == -1){
@@ -64,26 +76,46 @@ int main(){
         cleanup_handler(0);
     }
 
-    printf("\nPuedes escribir mensajes en este terminal, si pones de mensaje (-1) iras directamente al menu de reportes: \n");
+    printf("\nPuedes escribir mensajes en este terminal, si pones de mensaje (-1) desplegaras el menu de opcione: \n");
     ssize_t bytes_read;
     char msg[256];
 
     int target_pid;
+    int opciones;
+
+    ssize_t n;
+    int exito;
 
     while(1){
         printf("Escribe mensaje: ");
         fgets(pkt.mensaje, MSG_SIZE, stdin); //lee de teclado y lo guarda en variable pkt.mensaje y el tamaño de bytes de msg_size
         size_t L = strlen(pkt.mensaje);  //calcula longitud de la cadena leida
         if (L && pkt.mensaje[L-1] == '\n') pkt.mensaje[L-1] = '\0'; //limpia mensaje, quita el salto de linea por el 0
-        if (strcmp(pkt.mensaje, "-1") == 0) { //compara con el -1
-            printf("Menu de reportes: \n");
-            printf("Digita el PID a reportar: ");
-            scanf("%d",&target_pid);
-            write(fd3,&target_pid,sizeof(target_pid));
+        if (strcmp(pkt.mensaje, "-1") == 0) { //compara con el -1 para ver si quiere desplegar menu de opciones
+            printf("Menu de opciones: \n"); //Despliega menu de opciones
+            printf("1. Reportar\n2. Copiar\n Digite numero de operacion a elegir:"); 
+            scanf("%d", &opciones);
+            if(opciones == 1){
+                printf("Digite PID a reportar: "); //genera reporte a PID: target_pid
+                scanf("%d",&target_pid);
+                write(fd3,&target_pid,sizeof(target_pid));
+            }
+            else if(opciones == 2){
+                pid_t t = fork(); //genera fork (copia)
+                if(t > 0){  //Proceso padre sigue en el mismo terminal y codigo
+                    continue;
+                }
+                if(t == 0){ //Proceso hijo sigue en otro terminal (Buscar Xterm)
+
+                }
+            }
         } else {
             pkt.pid = mypid;
             write(fd2,&pkt, sizeof(pkt));
-            printf("\n");
+            n = read(fd,exito,sizeof(exito));
+            if(n){
+                printf("Mensaje enviado exitosamente...\n");
+            }
         }
     }    
 }

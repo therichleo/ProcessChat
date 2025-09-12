@@ -14,12 +14,19 @@ typedef struct {
 } estructure;
 
 const char *ClientTalkFIFO = "/tmp/processchat_client_talk"; // clientes -> servidor
+const char *ServerTalkFIFO = "/tmp/processchat_server_talk"; //PIPE donde server envia mensaje al cliente
+int fd = -1;
 int fd2 = -1;
 
 void cleanup_handler(int sig){
     (void)sig;
     printf("\nCerrando servidor...\n");
-    if (fd2 != -1) close(fd2); //cierra PIPE si esque se hizo un control c y sigue activa
+    if (fd2 != -1){
+        close(fd2); //cierra PIPE si esque se hizo un control c y sigue activa
+    }  
+    if (fd != -1){
+        close(fd);
+    }
     unlink(ClientTalkFIFO);
     exit(0);
 }
@@ -36,6 +43,12 @@ int main(void){
     }
     printf("FIFO creada: %s\n", ClientTalkFIFO);
 
+    fd = open(ServerTalkFIFO, O_WRONLY);
+    if(fd == -1){
+        printf("Error abriendo FIFO ServerTalksFIFO");
+        cleanup_handler(0);
+    }
+
     // Abre para lectura (bloquea hasta que un cliente abra en escritura)
     fd2 = open(ClientTalkFIFO, O_RDONLY);
     if (fd2 == -1){
@@ -47,6 +60,7 @@ int main(void){
 
     estructure pkt;
     ssize_t n;
+    int exito = 1;
 
     while (1) {
         n = read(fd2, &pkt, sizeof(pkt));
@@ -56,7 +70,8 @@ int main(void){
             }
             pkt.mensaje[MSG_SIZE - 1] = '\0';
             printf("PID=%d, Mensaje=\"%s\"\n", pkt.pid, pkt.mensaje);
-        } else if (n == 0) { //si nadie escribe, la cierra y la reabre para nuevas personas entrando
+            write(fd, exito,sizeof(exito));
+                } else if (n == 0) { //si nadie escribe, la cierra y la reabre para nuevas personas entrando
             printf("No hay clientes escribiendo. Esperando nuevos...\n");
             close(fd2);
             fd2 = open(ClientTalkFIFO, O_RDONLY);
