@@ -40,9 +40,8 @@ Se usan **FIFOs** para interconectar procesos:
 - `processchat_server_talk` → el **servidor responde** → los **clientes leen**.  
 - `processchat_reports` → los **clientes envían reportes** → el **módulo de reportes los procesa**.
 
-📊 **Flujo de información**:  
+### 📊 **Flujo de información**:  
 Cliente ───► Servidor ───► Confirmación Cliente ───► Reportes ───► Señal SIGUSR1 ───► Cliente reportado
-
 ---
 
 ## ⚙️ Ejecución
@@ -134,6 +133,7 @@ ProcessChat/
 Un sistema de chat sencillo pero completo, que muestra **cómo coordinar múltiples procesos concurrentes** en un entorno Unix.
 
 ```
+
 
 
 
