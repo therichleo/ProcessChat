@@ -140,9 +140,4 @@ Un sistema de chat sencillo pero completo, que muestra **cómo coordinar múltip
 
 ```
 
----
-
-¿Quieres que también le agregue un **diagrama visual tipo mermaid** (que GitHub renderiza bonito) mostrando la relación entre **Servidor, Clientes y Reportes**?
-```
-
 
