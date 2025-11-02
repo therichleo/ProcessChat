@@ -176,7 +176,7 @@ void* monster_thread(void* arg) {
  */
 void hero_attack_monsters(Hero *self) {
     int monsters_in_range_count = 0;
-    
+    //aaa
     // El héroe atacará continuamente hasta que no queden monstruos en rango
     while (self->is_alive) {
         monsters_in_range_count = 0;
